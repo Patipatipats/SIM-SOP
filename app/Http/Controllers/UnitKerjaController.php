@@ -2,55 +2,78 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UnitKerja; // Pastikan Model di-import
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UnitKerjaController extends Controller
 {
     public function index()
     {
-        $unitKerja = UnitKerja::all();
-        return view('unit-kerja.index', compact('unitKerja'));
+        // Sesuaikan nama variabel dengan loop di index.blade.php ($units)
+        $units = UnitKerja::latest()->get();
+        return view('unit_kerja.index', compact('units'));
     }
 
     public function create()
     {
-        $unitKerja = new UnitKerja();
-        return view('unit-kerja.create', compact('unitKerja'));
+        return view('unit_kerja.create');
     }
 
     public function store(Request $request)
     {
-        $unitKerja = new UnitKerja();
+        // Sesuaikan validasi dengan fillable di Model
         $validatedData = $request->validate([
-            'nama_unit_kerja' => 'required|string|max:255',
-            'deskripsi' => 'nullable|string',
+            'nama_unit' => 'required|string|max:255',
+            'unit_singkatan' => 'required|string|max:50',
+            'tipe_unit' => 'required|string',
+            'status_unit' => 'required|boolean',
         ]);
-        $unitKerja->create($validatedData);
-        return redirect()->route('unit-kerja.index')->with('success', 'Unit Kerja berhasil ditambahkan.');
+
+        // Tambahkan user yang sedang login sebagai pembuat
+        $validatedData['created_by'] = Auth::id();
+
+        UnitKerja::create($validatedData);
+
+        return redirect()->route('unit_kerja.index')->with('success', 'Unit Kerja berhasil ditambahkan.');
+    }
+
+    public function show($id)
+    {
+        $unit = UnitKerja::with(['creator', 'updater'])->findOrFail($id);
+        return view('unit_kerja.show', compact('unit'));
     }
 
     public function edit($id)
     {
-        $unitKerja = UnitKerja::findOrFail($id);
-        return view('unit-kerja.edit', compact('unitKerja'));
+        $unit = UnitKerja::findOrFail($id);
+        return view('unit_kerja.edit', compact('unit'));
     }
 
     public function update(Request $request, $id)
     {
-        $unitKerja = UnitKerja::findOrFail($id);
+        $unit = UnitKerja::findOrFail($id);
+
         $validatedData = $request->validate([
-            'nama_unit_kerja' => 'required|string|max:255',
-            'deskripsi' => 'nullable|string',
+            'nama_unit' => 'required|string|max:255',
+            'unit_singkatan' => 'required|string|max:50',
+            'tipe_unit' => 'required|string',
+            'status_unit' => 'required|boolean',
         ]);
 
-        $unitKerja->update($validatedData);
-        return redirect()->route('unit-kerja.index')->with('success', 'Unit Kerja berhasil diperbarui.');
+        // Tambahkan user yang sedang login sebagai pengubah
+        $validatedData['updated_by'] = Auth::id();
+
+        $unit->update($validatedData);
+
+        return redirect()->route('unit_kerja.index')->with('success', 'Unit Kerja berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
-        $unitKerja = UnitKerja::findOrFail($id);
-        $unitKerja->delete();
-        return redirect()->route('unit-kerja.index')->with('success', 'Unit Kerja berhasil dihapus.');
+        $unit = UnitKerja::findOrFail($id);
+        $unit->delete();
+        
+        return redirect()->route('unit_kerja.index')->with('success', 'Unit Kerja berhasil dihapus.');
     }
 }
