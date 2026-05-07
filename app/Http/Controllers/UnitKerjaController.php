@@ -9,11 +9,12 @@ use Illuminate\Support\Facades\Auth;
 class UnitKerjaController extends Controller
 {
     public function index()
-    {
-        // Sesuaikan nama variabel dengan loop di index.blade.php ($units)
-        $units = UnitKerja::latest()->get();
-        return view('unit_kerja.index', compact('units'));
-    }
+{
+    // Menggunakan withCount agar otomatis ada variabel sops_count
+    $units = UnitKerja::withCount('sops')->latest()->get();
+    
+    return view('unit_kerja.index', compact('units'));
+}
 
     public function create()
     {
