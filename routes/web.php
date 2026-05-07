@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KategoriController;    
 use App\Http\Controllers\UnitKerjaController;
+use App\Http\Controllers\SopController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,3 +49,8 @@ Route::middleware(['auth'])->group(function () {
 Route::resource('unit_kerja', UnitKerjaController::class); 
 
 Route::resource('kategori', KategoriController::class);
+
+Route::resource('sop', SopController::class);
+// Route untuk melihat daftar versi/file dari satu SOP
+Route::get('/sop/{id}/versions', [SopController::class, 'versions'])->name('sop.versions');
+

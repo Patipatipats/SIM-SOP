@@ -84,7 +84,7 @@
 
             <div class="collapse show" id="sop-collapse">
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ms-4 mt-2">
-                    <li><a href="#" class="nav-link text-white">Data SOP</a></li>
+                    <li><a href="{{ route('sop.index') }}" class="nav-link text-white">Data SOP</a></li>
                     <li><a href="{{ route('kategori.index') }}" class="nav-link text-white">Kategori SOP</a></li>
                     <li><a href="{{ route('unit_kerja.index') }}" class="nav-link text-white">Unit Kerja</a></li>
                     <li><a href="#" class="nav-link text-white">Tag SOP</a></li>
