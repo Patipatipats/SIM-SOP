@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0 text-gray-800">Edit Unit Kerja</h1>
-        <a href="{{ route('unit-kerja.index') }}" class="btn btn-secondary">
+        <a href="{{ route('unit_kerja.index') }}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Kembali
         </a>
     </div>
@@ -24,7 +24,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('unit-kerja.update', $unit->id) }}" method="POST">
+            <form action="{{ route('unit_kerja.update', $unit->id) }}" method="POST">
                 @csrf
                 @method('PUT')
                 
@@ -62,7 +62,7 @@
                         <button type="submit" class="btn btn-warning text-dark font-weight-bold">
                             <i class="fas fa-save"></i> Perbarui Data
                         </button>
-                        <a href="{{ route('unit-kerja.index') }}" class="btn btn-light">Batal</a>
+                        <a href="{{ route('unit_kerja.index') }}" class="btn btn-light">Batal</a>
                     </div>
                     
                     @if($unit->updater)

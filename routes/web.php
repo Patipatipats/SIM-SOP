@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\KategoriController;    
 use App\Http\Controllers\UnitKerjaController;
 
 /*
@@ -45,3 +46,5 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::resource('unit_kerja', UnitKerjaController::class); 
+
+Route::resource('kategori', KategoriController::class);

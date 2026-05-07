@@ -21,7 +21,7 @@
         <div class="container">
             <a class="navbar-brand font-weight-bold" href="#">SIM SOP</a>
             <div class="navbar-nav">
-                <a class="nav-link active" href="{{ route('unit-kerja.index') }}">Unit Kerja</a>
+                <a class="nav-link active" href="{{ route('unit_kerja.index') }}">Unit Kerja</a>
             </div>
         </div>
     </nav>

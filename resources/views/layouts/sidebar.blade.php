@@ -54,7 +54,7 @@
         <div class="mb-2">
             <i class="fas fa-user-circle fs-1 text-light"></i>
         </div>
-        <div class="fw-semibold">{{ Auth::user()->name ?? 'User' }}</div>
+        <div class="fw-semibold">{{ Auth::user()->name }}</div>
         <small class="text-secondary">Administrator</small>
     </div>
 
@@ -85,8 +85,8 @@
             <div class="collapse show" id="sop-collapse">
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ms-4 mt-2">
                     <li><a href="#" class="nav-link text-white">Data SOP</a></li>
-                    <li><a href="#" class="nav-link text-white">Kategori SOP</a></li>
-                    <li><a href="#" class="nav-link text-white">Unit Kerja</a></li>
+                    <li><a href="{{ route('kategori.index') }}" class="nav-link text-white">Kategori SOP</a></li>
+                    <li><a href="{{ route('unit_kerja.index') }}" class="nav-link text-white">Unit Kerja</a></li>
                     <li><a href="#" class="nav-link text-white">Tag SOP</a></li>
                 </ul>
             </div>
@@ -154,7 +154,7 @@
 
     <!-- Logout -->
     <div class="mt-4 pt-3 border-top">
-        <form method="POST" action="#">
+        <form method="POST" action="{{ route('logout')}}">
             @csrf
             <button type="submit" class="btn btn-outline-light w-100">
                 <i class="fas fa-right-from-bracket me-2"></i>
