@@ -15,6 +15,10 @@ class DatabaseSeeder extends Seeder
         // Super Admin
         $this->call([
             SuperAdminSeeder::class,
+            AdminSeeder::class,
+            ApproverSeeder::class,
+            UserInternalSeeder::class,
+            OperatorUnitSeeder::class,
         ]);
     }
 }

@@ -110,11 +110,25 @@
                                     <i class="fas fa-times-circle text-muted" title="Non-aktif"></i>
                                 @endif
                             </td>
-                            <td class="text-center fw-bold text-secondary">v{{ $sop->versi_terbaru ?? '1.0' }}</td>
-                            <td class="small">
-                                <div class="text-nowrap">B: <span class="text-success">{{ $sop->tanggal_berlaku ?? '-' }}</span></div>
-                                <div class="text-nowrap">E: <span class="text-danger">{{ $sop->tanggal_expired ?? '-' }}</span></div>
-                            </td>
+@php 
+    // Ambil data versi paling terakhir biar sinkron semua
+    $latest = $sop->versions->sortByDesc('id')->first(); 
+@endphp
+
+{{-- 1. Kolom Versi --}}
+<td class="text-center fw-bold text-secondary">
+    v{{ $latest ? $latest->versi : '1.0' }}
+</td>                           <td class="small">
+    {{-- Ambil versi terbaru dari SOP ini --}}
+    @php $latest = $sop->versions->sortByDesc('id')->first(); @endphp
+    
+    @if($latest)
+        <div class="text-nowrap">B: <span class="text-success">{{ $latest->tanggal_berlaku ?? '-' }}</span></div>
+        <div class="text-nowrap">E: <span class="text-danger">{{ $latest->tanggal_expired ?? '-' }}</span></div>
+    @else
+        <div class="text-muted small">Belum ada file</div>
+    @endif
+</td>
                             <td class="text-end pe-4">
                                 <div class="d-flex justify-content-end gap-1">
                                     <a href="{{ route('sop.show', $sop->id) }}" class="btn btn-sm btn-outline-primary" title="Detail">
