@@ -90,8 +90,8 @@
                     @if(in_array(auth()->user()->role_id, [2, 3]))
                         <li><a href="{{ route('kategori.index') ?? '#' }}" class="nav-link text-white">Kategori SOP</a></li>
                         <li><a href="{{ route('unit_kerja.index') ?? '#' }}" class="nav-link text-white">Unit Kerja</a></li>
-                        <li><a href="#" class="nav-link text-white">Fakultas</a></li>
-                        <li><a href="#" class="nav-link text-white">Program Studi</a></li>
+                        <li><a href="{{ route('fakultas.index') ?? '#' }}" class="nav-link text-white">Fakultas</a></li>
+                        <li><a href="{{ route('program_studi.index') ?? '#' }}" class="nav-link text-white">Program Studi</a></li>
                         <li><a href="#" class="nav-link text-white">Tag SOP</a></li>
                     @endif
                 </ul>

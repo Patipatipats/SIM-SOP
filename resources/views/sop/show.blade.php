@@ -126,7 +126,7 @@
                     </div>
                 </div>
             </div>
-
+    
             <div class="card border-0 shadow-sm bg-body">
                 <div class="card-header bg-transparent py-3 border-bottom d-flex justify-content-between align-items-center">
                     <h5 class="fw-bold mb-0 text-primary">Versi Dokumen & Preview</h5>

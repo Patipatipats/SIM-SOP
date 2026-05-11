@@ -7,6 +7,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KategoriController;    
 use App\Http\Controllers\UnitKerjaController;
 use App\Http\Controllers\SopController;
+use App\Http\Controllers\FakultasController;
+use App\Http\Controllers\ProgramStudiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,3 +68,7 @@ Route::prefix('sop')->name('sop.')->group(function () {
     Route::post('/{id}/setujui', [SopController::class, 'setujui'])->name('setujui');
     Route::post('/{id}/tolak', [SopController::class, 'tolak'])->name('tolak');
 });
+
+Route::resource('fakultas', FakultasController::class);
+
+Route::resource('program_studi', ProgramStudiController::class);

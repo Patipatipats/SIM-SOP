@@ -4,56 +4,54 @@
 <div class="container-fluid p-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="fw-bold text-dark mb-0">Data SOP Inti</h4>
-        <a href="{{ route('sop.create') }}" class="btn btn-primary shadow-sm px-4">
+        <button type="button" class="btn btn-primary shadow-sm px-4" data-bs-toggle="modal" data-bs-target="#createSopModal">
             <i class="fas fa-plus me-2"></i> Tambah SOP Baru
-        </a>
+        </button>
     </div>
 
-    <div class="card border-0 shadow-sm mb-4">
+    {{-- FILTER SEARCH --}}
+    <div class="card border-0 shadow-sm mb-4 bg-body">
         <div class="card-body">
             <form action="{{ route('sop.index') }}" method="GET" class="row g-3">
-    <div class="col-md-3">
-        <input type="text" name="search" class="form-control" placeholder="Cari Kode/Judul..." value="{{ request('search') }}">
-    </div>
-    
-    <div class="col-md-2">
-        <select name="kategori" class="form-select">
-            <option value="">-- Kategori --</option>
-            @foreach($categories as $cat)
-                <option value="{{ $cat->id }}" {{ request('kategori') == $cat->id ? 'selected' : '' }}>{{ $cat->nama_kategori }}</option>
-            @endforeach
-        </select>
-    </div>
-
-    <div class="col-md-2">
-        <select name="unit" class="form-select">
-            <option value="">-- Unit --</option>
-            @foreach($units as $unit)
-                <option value="{{ $unit->id }}" {{ request('unit') == $unit->id ? 'selected' : '' }}>{{ $unit->unit_singkatan }}</option>
-            @endforeach
-        </select>
-    </div>
-
-    <div class="col-md-3">
-        <select name="status" class="form-select">
-            <option value="">-- Semua Status --</option>
-            <option value="Draft" {{ request('status') == 'Draft' ? 'selected' : '' }}>Draft</option>
-            <option value="Review" {{ request('status') == 'Review' ? 'selected' : '' }}>Review</option>
-            <option value="Active" {{ request('status') == 'Active' ? 'selected' : '' }}>Active</option>
-            <option value="Archived" {{ request('status') == 'Archived' ? 'selected' : '' }}>Archived</option>
-        </select>
-    </div>
-
-    <div class="col-md-2 d-grid">
-        <button type="submit" class="btn btn-dark">Filter</button>
-    </div>
-</form>
+                <div class="col-md-3">
+                    <input type="text" name="search" class="form-control" placeholder="Cari Kode/Judul..." value="{{ request('search') }}">
+                </div>
+                <div class="col-md-2">
+                    <select name="kategori" class="form-select">
+                        <option value="">-- Kategori --</option>
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->id }}" {{ request('kategori') == $cat->id ? 'selected' : '' }}>{{ $cat->nama_kategori }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="unit" class="form-select">
+                        <option value="">-- Unit --</option>
+                        @foreach($units as $unit)
+                            <option value="{{ $unit->id }}" {{ request('unit') == $unit->id ? 'selected' : '' }}>{{ $unit->unit_singkatan }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">-- Semua Status --</option>
+                        <option value="Draft" {{ request('status') == 'Draft' ? 'selected' : '' }}>Draft</option>
+                        <option value="Review" {{ request('status') == 'Review' ? 'selected' : '' }}>Review</option>
+                        <option value="Active" {{ request('status') == 'Active' ? 'selected' : '' }}>Active</option>
+                        <option value="Archived" {{ request('status') == 'Archived' ? 'selected' : '' }}>Archived</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-dark">Filter</button>
+                </div>
+            </form>
         </div>
     </div> 
 
-    <div class="card border-0 shadow-sm">
+    {{-- TABEL DATA --}}
+    <div class="card border-0 shadow-sm bg-body">
         <div class="card-body p-0">
-            <div class="table-responsive">
+            <div class="table-responsive" style="overflow: visible !important;">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light">
                         <tr class="small text-uppercase fw-bold text-dark">
@@ -61,11 +59,8 @@
                             <th>Kode SOP</th>
                             <th>Judul SOP</th>
                             <th>Kategori</th>
-                            <th>Unit Kerja</th>
                             <th class="text-center">Status</th>
-                            <th class="text-center">Aktif</th>
                             <th class="text-center">Versi</th>
-                            <th>Berlaku/Expired</th>
                             <th class="text-end pe-4">Aksi</th>
                         </tr>
                     </thead>
@@ -74,26 +69,15 @@
                         <tr class="text-dark">
                             <td class="ps-4 text-muted">{{ $sops->firstItem() + $index }}</td>
                             <td>
-                                <a href="{{ route('sop.show', $sop->id) }}" class="fw-bold text-decoration-none">{{ $sop->kode_sop }}</a>
+                                <a href="{{ route('sop.show', $sop->id) }}" class="fw-bold text-decoration-none text-primary">{{ $sop->kode_sop }}</a>
                             </td>
-                            {{-- PERBAIKAN: Gunakan 'judul' sesuai database --}}
-                            <td style="max-width: 250px;" class="fw-semibold">
-                                {{ $sop->judul ?? 'Tidak ada judul' }}
-                            </td>
-                            <td>
-                                <small class="d-block">{{ $sop->kategori->nama_kategori ?? 'N/A' }}</small>
-                            </td>
-                            <td>
-                                <span class="badge bg-light text-dark border fw-normal">
-                                    {{ $sop->unitKerja->unit_singkatan ?? 'N/A' }}
-                                </span>
-                            </td>
+                            <td style="max-width: 250px;" class="fw-semibold">{{ $sop->judul }}</td>
+                            <td><small>{{ $sop->kategori->nama_kategori ?? 'N/A' }}</small></td>
                             <td class="text-center">
                                 @php
                                     $statusClass = [
                                         'Draft' => 'bg-warning text-dark',
                                         'Review' => 'bg-info text-white',
-                                        'Approved' => 'bg-primary text-white',
                                         'Active' => 'bg-success text-white',
                                         'Rejected' => 'bg-danger text-white',
                                         'Archived' => 'bg-secondary text-white'
@@ -103,102 +87,193 @@
                                     {{ $sop->status }}
                                 </span>
                             </td>
-                            <td class="text-center">
-                                @if($sop->is_active == 1)
-                                    <i class="fas fa-check-circle text-success" title="Aktif"></i>
-                                @else
-                                    <i class="fas fa-times-circle text-muted" title="Non-aktif"></i>
-                                @endif
-                            </td>
-@php 
-    // Ambil data versi paling terakhir biar sinkron semua
-    $latest = $sop->versions->sortByDesc('id')->first(); 
-@endphp
-
-{{-- 1. Kolom Versi --}}
-<td class="text-center fw-bold text-secondary">
-    v{{ $latest ? $latest->versi : '1.0' }}
-</td>                           <td class="small">
-    {{-- Ambil versi terbaru dari SOP ini --}}
-    @php $latest = $sop->versions->sortByDesc('id')->first(); @endphp
-    
-    @if($latest)
-        <div class="text-nowrap">B: <span class="text-success">{{ $latest->tanggal_berlaku ?? '-' }}</span></div>
-        <div class="text-nowrap">E: <span class="text-danger">{{ $latest->tanggal_expired ?? '-' }}</span></div>
-    @else
-        <div class="text-muted small">Belum ada file</div>
-    @endif
-</td>
+                            @php $latest = $sop->versions->sortByDesc('id')->first(); @endphp
+                            <td class="text-center fw-bold text-secondary">v{{ $latest ? $latest->versi : '1.0' }}</td>
                             <td class="text-end pe-4">
                                 <div class="d-flex justify-content-end gap-1">
-                                    <a href="{{ route('sop.show', $sop->id) }}" class="btn btn-sm btn-outline-primary" title="Detail">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ route('sop.edit', $sop->id) }}" class="btn btn-sm btn-outline-warning" title="Edit">
+                                    <a href="{{ route('sop.show', $sop->id) }}" class="btn btn-sm btn-outline-primary" title="Detail"><i class="fas fa-eye"></i></a>
+                                    
+                                    {{-- TOMBOL EDIT MODAL (Pake Data-Attributes) --}}
+                                    <button type="button" class="btn btn-sm btn-outline-warning btn-edit-sop" 
+                                        data-id="{{ $sop->id }}" 
+                                        data-judul="{{ $sop->judul }}"
+                                        data-kategori="{{ $sop->kategori_id }}"
+                                        data-unit="{{ $sop->unit_kerja_id }}"
+                                        data-deskripsi="{{ $sop->deskripsi }}"
+                                        data-status="{{ $sop->status }}"
+                                        data-kode="{{ $sop->kode_sop }}"
+                                        title="Edit">
                                         <i class="fas fa-edit text-dark"></i>
-                                    </a>
+                                    </button>
+
                                     <form action="{{ route('sop.destroy', $sop->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus dokumen ini jing?')">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus"><i class="fas fa-trash"></i></button>
                                     </form>
                                     
                                     <div class="dropdown">
-                                        <button class="btn btn-sm btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="min-width: 200px; z-index: 1050;">
+                                        <button class="btn btn-sm btn-outline-dark dropdown-toggle" data-bs-toggle="dropdown"></button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="z-index: 1050;">
                                             <li><h6 class="dropdown-header small text-uppercase">Opsi Dokumen</h6></li>
-                                            <li>
-                                                <a class="dropdown-item rounded mb-1 py-2" href="{{ route('sop.versions', $sop->id) }}">
-                                                    <i class="fas fa-upload me-2 text-muted"></i> Upload Versi Baru
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item rounded mb-1 py-2" href="#" target="_blank">
-                                                    <i class="fas fa-file-pdf me-2 text-muted"></i> Preview Dokumen
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item rounded mb-1 py-2" href="#">
-                                                    <i class="fas fa-download me-2 text-muted"></i> Download PDF
-                                                </a>
-                                            </li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li>
-                                                <a class="dropdown-item rounded text-primary fw-bold py-2" href="#">
-                                                    <i class="fas fa-paper-plane me-2"></i> Ajukan Approval
-                                                </a>
-                                            </li>
+                                            <li><a class="dropdown-item rounded py-2" href="{{ route('sop.versions', $sop->id) }}"><i class="fas fa-upload me-2 text-muted"></i> Riwayat Versi</a></li>
+                                            @if($latest)
+                                                <li><a class="dropdown-item rounded py-2" href="{{ route('sop.download', $latest->id) }}"><i class="fas fa-download me-2 text-muted"></i> Download PDF</a></li>
+                                            @endif
+                                            @if(in_array($sop->status, ['Draft', 'Rejected']))
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <form action="{{ route('sop.ajukan', $sop->id) }}" method="POST">
+                                                        @csrf
+                                                        <button type="submit" class="dropdown-item rounded text-primary fw-bold py-2"><i class="fas fa-paper-plane me-2"></i> Ajukan Approval</button>
+                                                    </form>
+                                                </li>
+                                            @endif
                                         </ul>
                                     </div>
                                 </div>
                             </td>
                         </tr>
                         @empty
-                        <tr>
-                            <td colspan="10" class="text-center py-5 text-muted">
-                                <i class="fas fa-folder-open fa-3x mb-3 d-block opacity-25"></i>
-                                Belum ada data SOP yang terdaftar.
-                            </td>
-                        </tr>
+                        <tr><td colspan="7" class="text-center py-5 text-muted">Belum ada data SOP.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
         @if($sops->hasPages())
-        <div class="card-footer bg-white border-top-0 py-3">
-            {{ $sops->links() }}
-        </div>
+        <div class="card-footer bg-white border-top-0 py-3">{{ $sops->links() }}</div>
         @endif
     </div>
 </div>
 
-<style>
-    /* Agar dropdown tidak terpotong oleh tabel responsive */
-    .table-responsive {
-        overflow: visible !important;
-    }
-</style>
+{{-- ========================================== --}}
+{{-- 1. MODAL TAMBAH SOP BARU                   --}}
+{{-- ========================================== --}}
+<div class="modal fade" id="createSopModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle me-2"></i> Registrasi SOP Baru</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('sop.store') }}" method="POST">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted text-uppercase">Judul Dokumen</label>
+                        <input type="text" name="judul" class="form-control" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Kategori</label>
+                            <select name="kategori_id" class="form-select" required>
+                                <option value="">-- Pilih --</option>
+                                @foreach($categories as $cat) <option value="{{ $cat->id }}">{{ $cat->nama_kategori }}</option> @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Unit Kerja</label>
+                            <select name="unit_kerja_id" class="form-select" required>
+                                <option value="">-- Pilih --</option>
+                                @foreach($units as $u) <option value="{{ $u->id }}">{{ $u->unit_singkatan }}</option> @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label fw-bold small text-muted text-uppercase">Deskripsi</label>
+                        <textarea name="deskripsi" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary fw-bold px-4">Simpan SOP</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- ========================================== --}}
+{{-- 2. MODAL EDIT SOP (Dynamic)                --}}
+{{-- ========================================== --}}
+<div class="modal fade" id="editSopModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title fw-bold text-dark"><i class="fas fa-edit me-2"></i> Update Metadata SOP</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editSopForm" method="POST">
+                @csrf @method('PUT')
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted text-uppercase">Kode SOP (Read Only)</label>
+                        <input type="text" id="edit_kode" name="kode_sop" class="form-control bg-light" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted text-uppercase">Judul Dokumen</label>
+                        <input type="text" id="edit_judul" name="judul" class="form-control" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Kategori</label>
+                            <select id="edit_kategori" name="kategori_id" class="form-select" required>
+                                @foreach($categories as $cat) <option value="{{ $cat->id }}">{{ $cat->nama_kategori }}</option> @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Status</label>
+                            <select id="edit_status" name="status" class="form-select" required>
+                                <option value="Draft">Draft</option>
+                                <option value="Active">Active</option>
+                                <option value="Archived">Archived</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3 d-none">
+                        <label class="form-label fw-bold small text-muted text-uppercase">Unit Kerja</label>
+                        <select id="edit_unit" name="unit_kerja_id" class="form-select">
+                            @foreach($units as $u) <option value="{{ $u->id }}">{{ $u->unit_singkatan }}</option> @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label fw-bold small text-muted text-uppercase">Deskripsi</label>
+                        <textarea id="edit_deskripsi" name="deskripsi" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-warning fw-bold px-4">Update Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- SCRIPT BUAT NGATUR ISI MODAL EDIT --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const editButtons = document.querySelectorAll('.btn-edit-sop');
+        const editModal = new bootstrap.Modal(document.getElementById('editSopModal'));
+        const editForm = document.getElementById('editSopForm');
+
+        editButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                // Set Action URL Form
+                editForm.action = `/sop/${id}`;
+                
+                // Isi input modal pake data dari baris tabel
+                document.getElementById('edit_kode').value = this.getAttribute('data-kode');
+                document.getElementById('edit_judul').value = this.getAttribute('data-judul');
+                document.getElementById('edit_kategori').value = this.getAttribute('data-kategori');
+                document.getElementById('edit_unit').value = this.getAttribute('data-unit');
+                document.getElementById('edit_deskripsi').value = this.getAttribute('data-deskripsi');
+                document.getElementById('edit_status').value = this.getAttribute('data-status');
+
+                editModal.show();
+            });
+        });
+    });
+</script>
 @endsection
