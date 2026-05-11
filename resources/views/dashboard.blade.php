@@ -7,11 +7,10 @@
 <style>
     /* ==========================================================================
        FIX UTAMA: Memaksa area konten mengikuti tema
-       (Gara-gara layouts/app.blade.php kamu maksa background putih)
        ========================================================================== */
     body {
-        background-color: var(--bs-body-bg) !important; /* Paksa pakai warna body theme */
-        color: var(--bs-body-color) !important; /* Paksa pakai warna tulisan theme */
+        background-color: var(--bs-body-bg) !important;
+        color: var(--bs-body-color) !important;
         transition: background-color 0.3s ease, color 0.3s ease;
     }
 
@@ -21,7 +20,7 @@
     }
 
     /* ==========================================================================
-       UI Enhancements lama kamu
+       UI Enhancements
        ========================================================================== */
     .stat-card {
         border-radius: 12px;
@@ -220,7 +219,7 @@
                         <i class="fas fa-file-alt me-2 text-primary"></i>
                         {{ auth()->user()->role_id == 4 ? 'Antrian Review' : 'SOP Terbaru' }}
                     </h6>
-                    <a href="{{ route('sop.index') ?? '#' }}" class="btn btn-sm btn-outline-primary fw-semibold rounded-pill px-3">Lihat Semua</a>
+                    <a href="{{ auth()->user()->role_id == 4 ? route('sop.index' , ['status' => 'Review']) : route('sop.index') }}" class="btn btn-sm btn-outline-primary fw-semibold rounded-pill px-3">Lihat Semua</a>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -241,7 +240,7 @@
                                             </span>
                                         </td>
                                         <td class="fw-medium">
-                                            {{ Str::limit($sop->judul, 45) }}
+                                            <a href="{{ route('sop.show', $sop->id) }}" class="text-decoration-none text-body">{{ Str::limit($sop->judul, 45) }}</a>
                                         </td>
                                         <td class="text-center pe-4">
                                             @php
@@ -299,9 +298,95 @@
             </div>
         </div>
     </div>
-</div>
 
-{{-- SCRIPT DARK MODE & CHART JS --}}
+    {{-- ============================================== --}}
+    {{-- TAHAP 7: MONITORING TOP SOP (VIEWS & DOWNLOADS)--}}
+    {{-- ============================================== --}}
+    <div class="row mt-4">
+        {{-- 1. Top Views --}}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm border-0 h-100 bg-body" style="border-radius: 12px;">
+                <div class="card-header bg-transparent py-3 px-4 border-0 pt-4">
+                    <h6 class="fw-bold mb-0">
+                        <i class="fas fa-eye me-2 text-primary"></i> 5 SOP Paling Banyak Dilihat
+                    </h6>
+                </div>
+                <div class="card-body px-4 pt-2">
+                    @php
+                        $topViews = \App\Models\Sop::where('status', 'Active')
+                                        ->orderBy('total_views', 'desc')
+                                        ->limit(5)
+                                        ->get();
+                    @endphp
+                    <ul class="list-group list-group-flush">
+                        @forelse($topViews as $index => $sopView)
+                            <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-0 py-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="fw-bold fs-5 me-3 text-muted">#{{ $index + 1 }}</div>
+                                    <div>
+                                        <a href="{{ route('sop.show', $sopView->id) }}" class="fw-bold text-decoration-none d-block mb-1 text-body">{{ \Illuminate\Support\Str::limit($sopView->judul, 40) }}</a>
+                                        <span class="badge bg-secondary bg-opacity-10 text-body border" style="font-size: 0.7rem;">{{ $sopView->kode_sop }}</span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2">
+                                        <i class="fas fa-eye me-1"></i> {{ $sopView->total_views }}
+                                    </span>
+                                </div>
+                            </li>
+                        @empty
+                            <div class="text-center text-muted small py-3">Belum ada data view.</div>
+                        @endforelse
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {{-- 2. Top Downloads --}}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm border-0 h-100 bg-body" style="border-radius: 12px;">
+                <div class="card-header bg-transparent py-3 px-4 border-0 pt-4">
+                    <h6 class="fw-bold mb-0">
+                        <i class="fas fa-download me-2 text-success"></i> 5 SOP Paling Banyak Diunduh
+                    </h6>
+                </div>
+                <div class="card-body px-4 pt-2">
+                    @php
+                        // Query pinter buat ngitung jumlah download dari log
+                        $topDownloads = \Illuminate\Support\Facades\DB::table('sop_download_logs')
+                                            ->join('sop', 'sop.id', '=', 'sop_download_logs.sop_id')
+                                            ->select('sop.id', 'sop.judul', 'sop.kode_sop', \Illuminate\Support\Facades\DB::raw('COUNT(sop_download_logs.id) as total_download'))
+                                            ->groupBy('sop.id', 'sop.judul', 'sop.kode_sop')
+                                            ->orderBy('total_download', 'desc')
+                                            ->limit(5)
+                                            ->get();
+                    @endphp
+                    <ul class="list-group list-group-flush">
+                        @forelse($topDownloads as $index => $sopDl)
+                            <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-0 py-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="fw-bold fs-5 me-3 text-muted">#{{ $index + 1 }}</div>
+                                    <div>
+                                        <a href="{{ route('sop.show', $sopDl->id) }}" class="fw-bold text-decoration-none d-block mb-1 text-body">{{ \Illuminate\Support\Str::limit($sopDl->judul, 40) }}</a>
+                                        <span class="badge bg-secondary bg-opacity-10 text-body border" style="font-size: 0.7rem;">{{ $sopDl->kode_sop }}</span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2">
+                                        <i class="fas fa-download me-1"></i> {{ $sopDl->total_download }}
+                                    </span>
+                                </div>
+                            </li>
+                        @empty
+                            <div class="text-center text-muted small py-3">Belum ada data download.</div>
+                        @endforelse
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div> {{-- SCRIPT DARK MODE & CHART JS --}}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // --- LOGIKA DARK MODE (Dengan LocalStorage) ---

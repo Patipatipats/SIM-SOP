@@ -56,3 +56,13 @@ Route::get('/sop/{id}/versions', [SopController::class, 'versions'])->name('sop.
 Route::get('/sop/file/{version_id}', [SopController::class, 'lihatPdf'])->name('sop.lihat_pdf');
 // Route khusus download versi terbaru dari Landing Page
 Route::get('/download-sop/{sop_id}', [SopController::class, 'downloadTerbaru'])->name('sop.download_terbaru');
+// Route buat Tracking Download
+Route::get('/versi/{id}/download', [SopController::class, 'downloadPdf'])->name('sop.download');
+Route::prefix('sop')->name('sop.')->group(function () {
+    // ... route yang udah ada ...
+    
+    // Route Approval
+    Route::post('/{id}/ajukan', [SopController::class, 'ajukanApproval'])->name('ajukan');
+    Route::post('/{id}/setujui', [SopController::class, 'setujui'])->name('setujui');
+    Route::post('/{id}/tolak', [SopController::class, 'tolak'])->name('tolak');
+});

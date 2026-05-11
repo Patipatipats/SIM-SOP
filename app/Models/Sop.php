@@ -18,6 +18,7 @@ class Sop extends Model
         'unit_kerja_id',
         'deskripsi',
         'status',
+        'total_views',
         'is_active',
         'created_by',
         'updated_by'

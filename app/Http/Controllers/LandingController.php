@@ -65,21 +65,17 @@ class LandingController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $sop_populer = DB::table('sop')
-            ->leftJoin('sop_views', 'sop_views.sop_id', '=', 'sop.id')
-            ->select(
-                'sop.id',
-                'sop.judul',
-                DB::raw('COUNT(sop_views.id) as total_views')
-            )
-            ->where('sop.is_active', 1)
-            ->whereNull('sop.deleted_at')
-            ->groupBy('sop.id', 'sop.judul')
-            ->orderByDesc('total_views')
-            ->limit(5)
-            ->get();
-
-
+  $sop_populer = DB::table('sop')
+    ->select(
+        'sop.id',
+        'sop.judul',
+        'sop.total_views' // Ambil langsung dari kolom yang kita bikin kemaren
+    )
+    ->where('sop.is_active', 1)
+    ->whereNull('sop.deleted_at')
+    ->orderByDesc('sop.total_views') // Urutin dari yang paling banyak dilihat
+    ->limit(5)
+    ->get();
 
         /*
         |--------------------------------------------------------------------------
