@@ -9,6 +9,13 @@ use App\Http\Controllers\UnitKerjaController;
 use App\Http\Controllers\SopController;
 use App\Http\Controllers\FakultasController;
 use App\Http\Controllers\ProgramStudiController;
+use App\Http\Controllers\TagSopController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\Temp_PasswordController;
+use App\Http\Controllers\LogAktivitasController;
+use App\Http\Controllers\PengaturanLandingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,3 +79,19 @@ Route::prefix('sop')->name('sop.')->group(function () {
 Route::resource('fakultas', FakultasController::class);
 
 Route::resource('program_studi', ProgramStudiController::class);
+
+Route::resource('tag_sop', TagSopController::class);
+
+Route::post('/pengguna/{id}/reset-password', [UserController::class, 'resetPassword'])->name('pengguna.reset_password');
+Route::post('/pengguna/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('pengguna.toggle_status');
+Route::resource('pengguna', UserController::class);
+
+Route::resource('role', RoleController::class);
+Route::resource('permission', PermissionController::class);
+Route::resource('temp-password', Temp_PasswordController::class);
+
+Route::resource('log-aktivitas', LogAktivitasController::class)->only(['index']);
+
+
+Route::post('/pengaturan-landing/{id}/toggle', [PengaturanLandingController::class, 'toggleStatus'])->name('pengaturan-landing.toggle');
+Route::resource('pengaturan-landing', PengaturanLandingController::class);

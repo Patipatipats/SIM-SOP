@@ -11,6 +11,16 @@ class LandingController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | DATA KONTEN LANDING PAGE (DARI CMS ADMIN) 🔥
+        |--------------------------------------------------------------------------
+        */
+        $konten_landing = DB::table('landing_pages')
+            ->where('aktif', 1)
+            ->orderBy('urutan', 'asc')
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
         | KATEGORI SOP + JUMLAH SOP
         |--------------------------------------------------------------------------
         */
@@ -31,7 +41,6 @@ class LandingController extends Controller
             ->where('kategori_sop.status', 1)
             ->orderBy('kategori_sop.nama_kategori')
             ->get();
-
 
 
         /*
@@ -58,24 +67,24 @@ class LandingController extends Controller
             ->get();
 
 
-
         /*
         |--------------------------------------------------------------------------
         | SOP PALING POPULER (BERDASARKAN VIEW)
         |--------------------------------------------------------------------------
         */
 
-  $sop_populer = DB::table('sop')
-    ->select(
-        'sop.id',
-        'sop.judul',
-        'sop.total_views' // Ambil langsung dari kolom yang kita bikin kemaren
-    )
-    ->where('sop.is_active', 1)
-    ->whereNull('sop.deleted_at')
-    ->orderByDesc('sop.total_views') // Urutin dari yang paling banyak dilihat
-    ->limit(5)
-    ->get();
+        $sop_populer = DB::table('sop')
+            ->select(
+                'sop.id',
+                'sop.judul',
+                'sop.total_views' 
+            )
+            ->where('sop.is_active', 1)
+            ->whereNull('sop.deleted_at')
+            ->orderByDesc('sop.total_views') 
+            ->limit(5)
+            ->get();
+
 
         /*
         |--------------------------------------------------------------------------
@@ -96,7 +105,6 @@ class LandingController extends Controller
             ->orderByDesc('sop_versions.created_at')
             ->limit(5)
             ->get();
-
 
 
         /*
@@ -125,7 +133,6 @@ class LandingController extends Controller
             ->count();
 
 
-
         /*
         |--------------------------------------------------------------------------
         | RETURN VIEW
@@ -133,6 +140,7 @@ class LandingController extends Controller
         */
 
         return view('landing_page', compact(
+            'konten_landing', // 🔥 Tambahin ini ke compact
             'kategori',
             'sop_terbaru',
             'sop_populer',

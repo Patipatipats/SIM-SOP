@@ -14,6 +14,11 @@
 
 @php
     use Illuminate\Support\Str;
+    
+    // 🔥 MAGIC CMS: Pisahin data dari database berdasarkan tipenya
+    $banner = isset($konten_landing) ? $konten_landing->where('tipe', 'banner')->first() : null;
+    $informasi = isset($konten_landing) ? $konten_landing->where('tipe', 'informasi') : collect([]);
+    $panduan = isset($konten_landing) ? $konten_landing->where('tipe', 'panduan') : collect([]);
 @endphp
 
 <style>
@@ -41,7 +46,6 @@
         max-width: 200px;
     }
     
-    /* Hover Lift Effect untuk Card */
     .hover-lift {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         border-radius: 16px;
@@ -51,7 +55,6 @@
         box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
     }
     
-    /* Mengambangkan Statistik ke atas Hero */
     .stat-container {
         margin-top: -50px;
         position: relative;
@@ -94,11 +97,22 @@
                 <span class="badge bg-white text-primary rounded-pill px-3 py-2 mb-3 fw-bold shadow-sm">
                     <i class="fas fa-university me-1"></i> Universitas Langlangbuana
                 </span>
+                
+                {{-- 🔥 BANNER DINAMIS DARI CMS --}}
                 <h1 class="hero-title mb-3 display-4">
-                    Sistem Informasi Manajemen <br> <span class="text-warning">Dokumen SOP</span>
+                    @if($banner)
+                        {!! $banner->judul !!}
+                    @else
+                        Sistem Informasi Manajemen <br> <span class="text-warning">Dokumen SOP</span>
+                    @endif
                 </h1>
+                
                 <p class="lead mb-5 opacity-75 fw-normal">
-                    Portal resmi pengelolaan, pencarian, dan arsip dokumen Standar Operasional Prosedur (SOP) secara digital dan terintegrasi.
+                    @if($banner)
+                        {!! strip_tags($banner->konten) !!}
+                    @else
+                        Portal resmi pengelolaan, pencarian, dan arsip dokumen Standar Operasional Prosedur (SOP) secara digital dan terintegrasi.
+                    @endif
                 </p>
 
                 <form action="{{ url('/sop') }}" method="GET">
@@ -178,6 +192,57 @@
         </div>
     </div>
 </section>
+
+{{-- 🔥 SECTION BARU: INFORMASI & PANDUAN DINAMIS DARI CMS --}}
+@if(isset($konten_landing) && ($informasi->count() > 0 || $panduan->count() > 0))
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row g-5">
+            {{-- Bagian Panduan Ringkas (Pake Accordion) --}}
+            @if($panduan->count() > 0)
+            <div class="col-lg-{{ $informasi->count() > 0 ? '6' : '12' }}">
+                <h4 class="section-title">Panduan Sistem</h4>
+                <div class="accordion shadow-sm" id="accordionPanduan">
+                    @foreach($panduan as $idx => $p)
+                    <div class="accordion-item border-0 border-bottom">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button {{ $idx == 0 ? '' : 'collapsed' }} fw-bold bg-light text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#pan-{{ $p->id }}">
+                                <i class="fas fa-book-open text-primary me-2"></i> {{ $p->judul }}
+                            </button>
+                        </h2>
+                        <div id="pan-{{ $p->id }}" class="accordion-collapse collapse {{ $idx == 0 ? 'show' : '' }}" data-bs-parent="#accordionPanduan">
+                            <div class="accordion-body text-muted small">
+                                {!! $p->konten !!}
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            {{-- Bagian Informasi Utama (Pake Cards) --}}
+            @if($informasi->count() > 0)
+            <div class="col-lg-{{ $panduan->count() > 0 ? '6' : '12' }}">
+                <h4 class="section-title">Pusat Informasi</h4>
+                <div class="d-flex flex-column gap-3">
+                    @foreach($informasi as $info)
+                    <div class="card border-0 shadow-sm hover-lift bg-light">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold text-dark mb-2"><i class="fas fa-bullhorn text-warning me-2"></i>{{ $info->judul }}</h5>
+                            <div class="text-muted small m-0">
+                                {!! $info->konten !!}
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+        </div>
+    </div>
+</section>
+@endif
 
 <section class="py-5 bg-light">
     <div class="container">

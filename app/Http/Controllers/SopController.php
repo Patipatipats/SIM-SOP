@@ -49,8 +49,11 @@ class SopController extends Controller
         $sops = $query->latest()->paginate(10);
         $categories = KategoriSop::where('status', 1)->get();
         $units = UnitKerja::where('status_unit', 1)->get();
+        
+        // 🔥 FIX TAHAP 10: Ambil semua master data tag untuk dicentang di modal checkbox view
+        $allTags = DB::table('tags')->get();
 
-        return view('sop.index', compact('sops', 'categories', 'units'));
+        return view('sop.index', compact('sops', 'categories', 'units', 'allTags'));
     }
 
     public function versions($id)
@@ -66,12 +69,13 @@ class SopController extends Controller
     {
         $categories = KategoriSop::where('status', 1)->get();
         $units = UnitKerja::where('status_unit', 1)->get();
+        $allTags = DB::table('tags')->get();
         
-        return view('sop.create', compact('categories', 'units'));
+        return view('sop.create', compact('categories', 'units', 'allTags'));
     }
 
     /**
-     * Simpan Metadata SOP
+     * Simpan Metadata SOP + Input Multi-Select Tag SOP
      */
     public function store(Request $request)
     {
@@ -80,6 +84,7 @@ class SopController extends Controller
             'judul' => 'required|string|max:255',
             'kategori_id' => 'required|exists:kategori_sop,id',
             'unit_kerja_id' => 'required|exists:unit_kerja,id',
+            'tags' => 'nullable|array' // Pastiin request tags bentuknya array checkbox
         ]);
 
         // 2. Logika Kode Otomatis
@@ -95,7 +100,7 @@ class SopController extends Controller
         $noUrutFormatted = str_pad($noUrut, 4, '0', STR_PAD_LEFT);
         $kodeOtomatis = "SOP/{$singkatan}/{$tahun}/{$noUrutFormatted}";
 
-        // 3. Simpan ke Database (Dimasukin ke variabel $sop biar dapet ID nya)
+        // 3. Simpan ke Database
         $sop = Sop::create([
             'kode_sop'      => $kodeOtomatis,
             'judul'         => $request->judul,
@@ -107,7 +112,19 @@ class SopController extends Controller
             'created_by'    => auth()->id(),
         ]);
 
-        // 🔥 TAHAP 6: CATAT SEJARAH PEMBUATAN AWAL
+        // 🔥 FIX SAKTI STORE: Simpan data array checkbox ke tabel pivot 'sop_tags'
+        $inputTags = $request->input('tags') ?? $request->input('tag_sop');
+
+        if ($inputTags && is_array($inputTags)) {
+            foreach ($inputTags as $tagId) {
+                DB::table('sop_tags')->insert([
+                    'sop_id' => $sop->id,
+                    'tag_id' => $tagId
+                ]);
+            }
+        }
+
+        // 4. Catat Sejarah Pembuatan Awal
         DB::table('sop_status_history')->insert([
             'sop_id'      => $sop->id, 
             'status_lama' => '-', 
@@ -125,22 +142,19 @@ class SopController extends Controller
      */
     public function show(Request $request, $id)
     {
-        // 1. Cari data SOP-nya
         $sop = Sop::with(['kategori', 'unitKerja', 'creator.profil'])->findOrFail($id);
 
-        // 2. JURUS PENAIK TAYANGAN: Tambah 1 ke kolom total_views
+        // Tambah 1 ke kolom total_views
         $sop->increment('total_views');
 
-        // 🔥 3. TAHAP 7: CATAT LOG VIEW KE TABEL
-        // (Gua asumsikan kolom lu mirip sama log download. Kalau kaga ada kolom user_agent/ip_address, apus aja barisnya jing)
+        // Catat log view ke tabel
         DB::table('sop_views')->insert([
             'sop_id'     => $sop->id,
-            'user_id'    => auth()->check() ? auth()->id() : null, // Catat yang login, atau kosong kalau guest
+            'user_id'    => auth()->check() ? auth()->id() : null, 
             'ip_address' => $request->ip(),
-            'viewed_at'  => now(), // Atau ganti jadi 'created_at' => now() tergantung nama kolom di tabel lu
+            'viewed_at'  => now(), 
         ]);
 
-        // 4. Tampilkan ke view
         return view('sop.show', compact('sop'));
     }
 
@@ -152,12 +166,13 @@ class SopController extends Controller
         $sop = Sop::findOrFail($id);
         $categories = KategoriSop::where('status', 1)->get();
         $units = UnitKerja::where('status_unit', 1)->get();
+        $allTags = DB::table('tags')->get();
 
-        return view('sop.edit', compact('sop', 'categories', 'units'));
+        return view('sop.edit', compact('sop', 'categories', 'units', 'allTags'));
     }
 
     /**
-     * Update Metadata SOP
+     * Update Metadata SOP + Sinkronisasi Ulang Tag SOP (Sync)
      */
     public function update(Request $request, $id)
     {
@@ -168,7 +183,8 @@ class SopController extends Controller
             'judul' => 'required|string|max:255',
             'kategori_id' => 'required|exists:kategori_sop,id',
             'unit_kerja_id' => 'required|exists:unit_kerja,id',
-            'status' => 'required|in:Draft,Active,Archived', 
+            'status' => 'required|in:Draft,Active,Archived,Review', 
+            'tags' => 'nullable|array'
         ]);
 
         $sop->update([
@@ -177,20 +193,37 @@ class SopController extends Controller
             'kategori_id' => $request->kategori_id,
             'unit_kerja_id' => $request->unit_kerja_id,
             'deskripsi' => $request->deskripsi,
-            'tag_sop' => $request->tag_sop,
             'status' => $request->status,
             'updated_by' => auth()->id(),
         ]);
+
+        // 🔥 FIX SAKTI UPDATE: Hapus dulu semua tag lama milik SOP ini, baru tulis ulang dari checkbox baru
+        DB::table('sop_tags')->where('sop_id', $id)->delete();
+
+        $inputTags = $request->input('tags') ?? $request->input('tag_sop');
+
+        if ($inputTags && is_array($inputTags)) {
+            foreach ($inputTags as $tagId) {
+                DB::table('sop_tags')->insert([
+                    'sop_id' => $id,
+                    'tag_id' => $tagId
+                ]);
+            }
+        }
 
         return redirect()->route('sop.index')->with('success', 'Data SOP berhasil diperbarui!');
     }
 
     /**
-     * Hapus SOP
+     * Hapus SOP beserta log pivotnya
      */
     public function destroy($id)
     {
         $sop = Sop::findOrFail($id);
+        
+        // Hapus dulu data relasinya di pivot biar ga melanggar foreign key constraint
+        DB::table('sop_tags')->where('sop_id', $id)->delete();
+        
         $sop->delete();
 
         return redirect()->route('sop.index')->with('success', 'SOP berhasil dihapus!');
@@ -245,7 +278,7 @@ class SopController extends Controller
     }
 
     // =========================================================================
-    // FITUR TAHAP 7: DOWNLOAD & TRACKING LOG
+    // FITUR DOWNLOAD & TRACKING LOG
     // =========================================================================
     
     public function downloadPdf(Request $request, $id)
@@ -277,7 +310,7 @@ class SopController extends Controller
     }
 
     // =========================================================================
-    // FITUR TAHAP 5 & 6: APPROVAL WORKFLOW
+    // APPROVAL WORKFLOW
     // =========================================================================
 
     public function ajukanApproval($id)
@@ -326,6 +359,11 @@ class SopController extends Controller
                 'created_at'     => now(),
                 'updated_at'     => now(),
             ]);
+        }
+
+        // Sinkronisasi status riwayat versi
+        if ($latestVersion) {
+            $latestVersion->update(['status' => 'Active']);
         }
 
         DB::table('sop_status_history')->insert([

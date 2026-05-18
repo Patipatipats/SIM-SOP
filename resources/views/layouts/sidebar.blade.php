@@ -92,7 +92,7 @@
                         <li><a href="{{ route('unit_kerja.index') ?? '#' }}" class="nav-link text-white">Unit Kerja</a></li>
                         <li><a href="{{ route('fakultas.index') ?? '#' }}" class="nav-link text-white">Fakultas</a></li>
                         <li><a href="{{ route('program_studi.index') ?? '#' }}" class="nav-link text-white">Program Studi</a></li>
-                        <li><a href="#" class="nav-link text-white">Tag SOP</a></li>
+                        <li><a href="{{ route('tag_sop.index') ?? '#' }}" class="nav-link text-white">Tag SOP</a></li>
                     @endif
                 </ul>
             </div>
@@ -116,10 +116,10 @@
 
             <div class="collapse" id="pengguna-collapse">
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ms-4 mt-2">
-                    <li><a href="#" class="nav-link text-white">Pengguna</a></li>
-                    <li><a href="#" class="nav-link text-white">Role</a></li>
-                    <li><a href="#" class="nav-link text-white">Permission</a></li>
-                    <li><a href="#" class="nav-link text-white">Temp Password</a></li>
+                    <li><a href="{{ route('pengguna.index') ?? '#' }}" class="nav-link text-white">Pengguna</a></li>
+                    <li><a href="{{ route('role.index') ?? '#' }}" class="nav-link text-white">Role</a></li>
+                    <li><a href="{{ route('permission.index') ?? '#' }}" class="nav-link text-white">Permission</a></li>
+                    <li><a href="{{ route('temp-password.index') ?? '#' }}" class="nav-link text-white">Temp Password</a></li>
                 </ul>
             </div>
         </li>
@@ -145,14 +145,18 @@
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ms-4 mt-2">
                     {{-- Super Admin (2) & Admin (3) --}}
                     @if(in_array(auth()->user()->role_id, [2, 3]))
-                        <li><a href="#" class="nav-link text-white">Log Aktivitas</a></li>
-                        <li><a href="#" class="nav-link text-white">Download SOP</a></li>
-                        <li><a href="#" class="nav-link text-white">View SOP</a></li>
+                        <li><a href="{{ route('log-aktivitas.index') }}" class="nav-link text-white">Log Aktivitas</a></li>
+                        <li>
+                            <a href="{{ route('log-aktivitas.index') }}#download" class="nav-link text-white">Download SOP</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('log-aktivitas.index') }}#view" class="nav-link text-white">View SOP</a>
+                        </li>
                     @endif
                     
                     {{-- Super Admin (2), Admin (3), Approver (4) --}}
                     @if(in_array(auth()->user()->role_id, [2, 3, 4]))
-                        <li><a href="#" class="nav-link text-white">Approval SOP</a></li>
+                        <li><a href="{{ route('log-aktivitas.index') }}#approval" class="nav-link text-white">Approval SOP</a></li>
                     @endif
                 </ul>
             </div>
@@ -166,7 +170,7 @@
         </li>
 
         <li class="nav-item mb-1">
-            <a href="#" class="nav-link text-white">
+            <a href="{{ route('pengaturan-landing.index') }}" class="nav-link text-white">
                 <i class="fas fa-gear me-2"></i>
                 Landing Page
             </a>
